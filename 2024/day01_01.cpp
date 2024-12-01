@@ -1,15 +1,16 @@
 #include <algorithm>
+#include <cstdio>
 #include <fstream>
-#include <iostream>
 #include <numeric>
 #include <ranges>
 #include <vector>
 
+template <typename T>
 auto read_file(const std::string &filename)
 {
     std::ifstream file(filename);
-    std::vector<int> a, b;
-    for (int x, y; file >> x >> y;)
+    std::vector<T> a, b;
+    for (T x, y; file >> x >> y;)
     {
         a.push_back(x);
         b.push_back(y);
@@ -20,15 +21,14 @@ auto read_file(const std::string &filename)
 
 int main()
 {
-    auto [a, b] = read_file("day01.txt");
-    std::cout << a.size() << '\n';
+    auto [a, b] = read_file<long>("day01.txt");
 
     std::ranges::sort(a);
     std::ranges::sort(b);
 
     const auto sum_View = std::views::zip_transform([](auto x, auto y) { return std::abs(x - y); }, a, b);
 
-    std::cout << std::reduce(sum_View.begin(), sum_View.end()) << '\n';
+    std::printf("%ld\n", std::reduce(sum_View.begin(), sum_View.end()));
 
     return 0;
 }

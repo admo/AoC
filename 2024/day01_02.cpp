@@ -1,17 +1,16 @@
 #include <algorithm>
 #include <cstdio>
-#include <format>
 #include <fstream>
-#include <iostream>
 #include <numeric>
 #include <ranges>
 #include <vector>
 
+template<typename T>
 auto read_file(const std::string &filename)
 {
     std::ifstream file(filename);
-    std::vector<std::size_t> a, b;
-    for (int x, y; file >> x >> y;)
+    std::vector<T> a, b;
+    for (T x, y; file >> x >> y;)
     {
         a.push_back(x);
         b.push_back(y);
@@ -22,12 +21,12 @@ auto read_file(const std::string &filename)
 
 int main()
 {
-    auto [a, b] = read_file("day01.txt");
+    auto [a, b] = read_file<std::size_t>("day01.txt");
 
     for (auto &id : a)
         id *= std::ranges::count(b, id);
 
-    std::puts(std::format("{}", std::reduce(a.begin(), a.end())).c_str());
+    printf("%zu\n", std::reduce(a.begin(), a.end()));
 
     return 0;
 }
