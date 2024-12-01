@@ -3,17 +3,19 @@
 #include <fstream>
 #include <numeric>
 #include <ranges>
+#include <unordered_map>
 #include <vector>
 
-template<typename T>
+template <typename T>
 auto read_file(const std::string &filename)
 {
     std::ifstream file(filename);
-    std::vector<T> a, b;
+    std::vector<T> a;
+    std::unordered_map<T, std::size_t> b;
     for (T x, y; file >> x >> y;)
     {
         a.push_back(x);
-        b.push_back(y);
+        ++b[y];
     }
 
     return std::make_pair(std::move(a), std::move(b));
@@ -24,9 +26,12 @@ int main()
     auto [a, b] = read_file<std::size_t>("day01.txt");
 
     for (auto &id : a)
-        id *= std::ranges::count(b, id);
+        id *= b[id];
 
-    printf("%zu\n", std::reduce(a.begin(), a.end()));
+    constexpr auto expected = std::size_t{27732508};
+    const auto result = std::reduce(a.begin(), a.end());
+    const auto is_equal = expected == result;
+    printf("%zu == %zu -> %s\n", expected, result, is_equal ? "true" : "false");
 
-    return 0;
+    return is_equal ? 0 : 1;
 }
