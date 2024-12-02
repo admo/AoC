@@ -2,52 +2,54 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <ranges>
 #include <sstream>
+#include <vector>
 
-bool is_distance_valid(const int a, const int b)
-{
-    const auto distance = std::abs(a - b);
-    return distance > 0 && distance < 4;
-}
-
-auto read_file(const std::string &filename)
+auto read_reports_from_file(const std::string &filename)
 {
     std::ifstream file{filename};
-    std::string line;
-    int number_of_safe_reports = 0;
+    std::vector<std::vector<int>> reports;
 
-    while (std::getline(file, line))
+    for (std::string line; std::getline(file, line);)
     {
         std::istringstream iss{line};
+        std::vector<int> report;
+        std::copy(std::istream_iterator<int>{iss}, std::istream_iterator<int>{}, std::back_inserter(report));
 
-        int previous_number, current_number;
-        iss >> previous_number >> current_number;
-
-        const auto is_increasing = previous_number < current_number;
-
-        while (is_increasing == (previous_number < current_number) &&
-               is_distance_valid(previous_number, current_number))
-        {
-            previous_number = current_number;
-
-            if (!(iss >> current_number))
-            {
-                ++number_of_safe_reports;
-                break;
-            }
-        }
+        reports.push_back(std::move(report));
     }
 
-    return number_of_safe_reports;
+    return reports;
+}
+
+auto is_report_safe(std::vector<int> report)
+{
+    const auto is_increasing = std::ranges::is_sorted(report, std::less<>{});
+    const auto is_decreasing = std::ranges::is_sorted(report, std::greater<>{});
+
+    if (!is_increasing && !is_decreasing)
+        return false;
+
+    std::adjacent_difference(report.begin(), report.end(), report.begin(),
+                             [](const int a, const int b) { return std::abs(a - b); });
+
+    return std::all_of(report.begin() + 1, report.end(),
+                       [](const auto distance) { return distance > 0 && distance < 4; });
+}
+
+auto count_safe_reports(const std::string &filename)
+{
+    return std::ranges::count_if(read_reports_from_file(filename), [](const auto &report) { return is_report_safe(report); });
 }
 
 int main()
 {
-    constexpr auto expected = int{421};
-    const auto result = read_file("day02.txt");
+    constexpr auto expected = size_t{421};
+    const auto result = count_safe_reports("day02.txt");
     const auto is_equal = expected == result;
-    printf("%d == %d -> %s\n", expected, result, is_equal ? "true" : "false");
+    printf("%lu == %ld -> %s\n", expected, result, is_equal ? "true" : "false");
 
     return is_equal ? 0 : 1;
 }
