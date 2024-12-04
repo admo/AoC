@@ -18,11 +18,11 @@ auto read_word_search_puzzle(const std::string &filename)
     return reports;
 }
 
-auto find_xmas(const std::vector<std::string> &puzzle, const int x, const int y, const int dx, const int dy)
+auto find_mas(const std::vector<std::string> &puzzle, const int x, const int y, const int dx, const int dy)
 {
+    static constexpr auto word = std::string_view{"MAS"};
     const auto width = puzzle.front().size();
     const auto height = puzzle.size();
-    static constexpr auto word = std::string_view{"XMAS"};
 
     for (auto i = int{0}; i < word.size(); ++i)
     {
@@ -41,13 +41,10 @@ auto find_xmas(const std::vector<std::string> &puzzle, const int x, const int y,
 
 auto count_xmas_at(const std::vector<std::string> &puzzle, const int x, const int y)
 {
-    auto result = std::size_t{0};
+    const auto mas1 = find_mas(puzzle, x - 1, y - 1, 1, 1) || find_mas(puzzle, x + 1, y + 1, -1, -1);
+    const auto mas2 = find_mas(puzzle, x - 1, y + 1, 1, -1) || find_mas(puzzle, x + 1, y - 1, -1, 1);
 
-    for (const auto dx : {-1, 0, 1})
-        for (const auto dy : {-1, 0, 1})
-            result += find_xmas(puzzle, x, y, dx, dy);
-
-    return result;
+    return mas1 && mas2 ? std::size_t{1} : std::size_t{0};
 }
 
 auto solve(const std::vector<std::string> &puzzle)
@@ -57,9 +54,9 @@ auto solve(const std::vector<std::string> &puzzle)
     const auto width = puzzle.front().size();
     const auto height = puzzle.size();
 
-    for (int x = 0; x < width; ++x)
+    for (int x = 1; x < width; ++x)
     {
-        for (int y = 0; y < height; ++y)
+        for (int y = 1; y < height; ++y)
         {
             result += count_xmas_at(puzzle, x, y);
         }
@@ -70,7 +67,7 @@ auto solve(const std::vector<std::string> &puzzle)
 
 int main()
 {
-    static constexpr auto expected = size_t{2401};
+    static constexpr auto expected = size_t{1822};
     const auto puzzle = read_word_search_puzzle("day04.txt");
     const auto result = solve(puzzle);
     const auto is_equal = expected == result;
