@@ -54,9 +54,9 @@ auto solve(const std::vector<std::string> &puzzle)
     const auto width = puzzle.front().size();
     const auto height = puzzle.size();
 
-    for (int x = 1; x < width; ++x)
+    for (int x = 1; x < width - 1; ++x)
     {
-        for (int y = 1; y < height; ++y)
+        for (int y = 1; y < height - 1; ++y)
         {
             result += count_xmas_at(puzzle, x, y);
         }
