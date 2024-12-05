@@ -38,15 +38,18 @@ auto read_file(const std::string &filename)
     return std::make_pair(std::move(rules), std::move(updates));
 }
 
-auto solve(const Rules &rules, const Updates &updates)
+auto solve(const Rules &rules, Updates updates)
 {
     auto result = std::size_t{};
     auto predicate = [&rules](const auto a, const auto b) { return !rules.contains(a) || rules.at(a).contains(b); };
 
-    for (const auto &update : updates)
+    for (auto &update : updates)
     {
-        const auto is_correct = std::ranges::is_sorted(update, predicate);
-        result += is_correct ? update[update.size() / 2] : 0;
+        if (std::ranges::is_sorted(update, predicate))
+            continue;
+
+        std::ranges::sort(update, predicate);
+        result += update[update.size() / 2];
     }
 
     return result;
@@ -54,9 +57,9 @@ auto solve(const Rules &rules, const Updates &updates)
 
 int main()
 {
-    static constexpr auto expected = size_t{5268};
-    const auto [rules, updates] = read_file("day05.txt");
-    const auto result = solve(rules, updates);
+    static constexpr auto expected = size_t{5799};
+    auto [rules, updates] = read_file("day05.txt");
+    const auto result = solve(rules, std::move(updates));
     const auto is_equal = expected == result;
     printf("%zu == %zu -> %s\n", expected, result, is_equal ? "true" : "false");
 
