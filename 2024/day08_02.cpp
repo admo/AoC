@@ -27,6 +27,28 @@ auto count_line_breaks(const std::string &map, const std::size_t start, const st
     return std::ranges::count(map | drop(start) | take(distance), '\n');
 }
 
+void left_antinodes(const std::string &map, std::string &antinodes, std::size_t a1, const std::size_t d,
+                    const std::size_t br)
+{
+    antinodes[a1] = '#';
+
+    for (; a1 >= d && count_line_breaks(map, a1 - d, d) == br && map[a1 - d] != '\n'; a1 -= d)
+    {
+        antinodes[a1 - d] = '#';
+    }
+}
+
+void right_antinodes(const std::string &map, std::string &antinodes, std::size_t a2, const std::size_t d,
+                     const std::size_t br)
+{
+    antinodes[a2] = '#';
+
+    for (; a2 < map.size() && count_line_breaks(map, a2, d) == br && map[a2 + d] != '\n'; a2 += d)
+    {
+        antinodes[a2 + d] = '#';
+    }
+}
+
 auto solve(const std::string &map)
 {
     auto antinodes = std::string(map.size(), '.');
@@ -39,24 +61,17 @@ auto solve(const std::string &map)
             const auto distance = a2 - a1;
             const auto line_breaks = count_line_breaks(map, a1, distance);
 
-            if (a1 >= distance && count_line_breaks(map, a1 - distance, distance) == line_breaks &&
-                map[a1 - distance] != '\n')
-            {
-                antinodes[a1 - distance] = '#';
-            }
-            if (a2 + distance < map.size() && count_line_breaks(map, a2, distance) == line_breaks &&
-                map[a2 + distance] != '\n')
-            {
-                antinodes[a2 + distance] = '#';
-            }
+            left_antinodes(map, antinodes, a1, distance, line_breaks);
+            right_antinodes(map, antinodes, a2, distance, line_breaks);
         }
     }
+
     return std::ranges::count(antinodes, '#');
 }
 
 int main()
 {
-    static constexpr auto expected = size_t{398};
+    static constexpr auto expected = size_t{1333};
     const auto result = solve(read_map_from("day08.txt"));
     const auto is_equal = expected == result;
     printf("%zu == %zu -> %s\n", expected, result, is_equal ? "true" : "false");
