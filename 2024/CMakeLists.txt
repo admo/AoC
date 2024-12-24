@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(AoC)
 
 set(CMAKE_CXX_STANDARD 23)
+add_compile_options(-include cstddef)
 
 add_executable(AoC_day01_01 day01_01.cpp)
 add_executable(AoC_day01_02 day01_02.cpp)
@@ -19,3 +20,4 @@ add_executable(AoC_day07_01 day07_01.cpp)
 add_executable(AoC_day07_02 day07_02.cpp)
 add_executable(AoC_day08_01 day08_01.cpp)
 add_executable(AoC_day08_02 day08_02.cpp)
+add_executable(AoC_day09_01 day09_01.cpp)
